@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SilenceCut — Remove Silences From Audio Instantly</title>
+<meta name="description" content="Upload your audio or AI-generated voice, remove empty pauses in seconds, download a clean tight recording. Free to start.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a2e;
+  --ink2: #4a4a6a;
+  --ink3: #8888aa;
+  --bg: #f7f7fb;
+  --surface: #ffffff;
+  --border: #e8e8f0;
+  --accent: #6c5ce7;
+  --accent-light: #ede9fe;
+  --accent-dark: #4c3cc7;
+  --green: #00b894;
+  --green-light: #e0faf4;
+  --red: #e17055;
+  --red-light: #fdecea;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block}
+.nav-links{display:flex;align-items:center;gap:1.5rem}
+.nav-links a{color:var(--ink2);text-decoration:none;font-size:14px;transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:var(--accent);color:#fff;padding:8px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--accent-dark)}
+
+/* PAGE SECTIONS */
+.page{display:none}
+.page.active{display:block}
+
+/* HERO */
+.hero{padding:5rem 1.5rem 3rem;text-align:center;max-width:680px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem}
+.hero-badge span{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.1;color:var(--ink);margin-bottom:1.25rem}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p{font-size:16px;color:var(--ink2);max-width:480px;margin:0 auto 2rem}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:13px 28px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--border);padding:13px 24px;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* STATS ROW */
+.stats-strip{background:var(--ink);color:#fff;padding:1.25rem 1.5rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-item .num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.stat-item .lbl{font-size:12px;color:#aab;margin-top:2px}
+
+/* UPLOAD TOOL */
+.tool-wrap{max-width:720px;margin:0 auto;padding:3rem 1.5rem}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tool-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tool-header h2{font-size:16px;font-weight:600;color:var(--ink)}
+.step-dots{display:flex;gap:6px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.step-dot.done{background:var(--accent)}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius-sm);margin:1.5rem;padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all .25s;background:var(--bg)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accent-light)}
+.upload-icon{width:52px;height:52px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.upload-icon svg{width:24px;height:24px;stroke:var(--accent);fill:none}
+.upload-zone h3{font-size:16px;font-weight:500;color:var(--ink);margin-bottom:6px}
+.upload-zone p{font-size:13px;color:var(--ink3)}
+.file-types{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.ft-badge{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--ink3);font-weight:500}
+
+/* SETTINGS */
+.settings-area{padding:0 1.5rem 1.5rem}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.setting{background:var(--bg);border-radius:var(--radius-sm);padding:1rem}
+.setting label{font-size:12px;color:var(--ink3);font-weight:500;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.setting-row{display:flex;align-items:center;justify-content:space-between}
+.setting input[type=range]{flex:1;margin-right:10px;accent-color:var(--accent)}
+.setting-val{font-size:14px;font-weight:600;color:var(--accent);min-width:42px;text-align:right}
+.process-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.process-btn:hover{background:var(--accent-dark)}
+.process-btn:disabled{background:var(--border);color:var(--ink3);cursor:not-allowed}
+
+/* RESULT */
+.result-area{padding:1.5rem;border-top:1px solid var(--border)}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.rs{background:var(--bg);border-radius:var(--radius-sm);padding:.875rem;text-align:center}
+.rs .rv{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--ink)}
+.rs .rl{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.rs.highlight .rv{color:var(--green)}
+.waveform-wrap{background:var(--bg);border-radius:var(--radius-sm);padding:12px;margin-bottom:1.25rem}
+.waveform-label{font-size:11px;color:var(--ink3);margin-bottom:8px;display:flex;justify-content:space-between}
+.waveform{height:64px;display:flex;align-items:center;gap:2px}
+.wvbar{border-radius:2px;width:5px;flex-shrink:0;transition:all .3s}
+.download-btn{width:100%;background:var(--green);color:#fff;border:none;padding:14px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-bottom:10px}
+.download-btn:hover{background:#00a381}
+.free-note{font-size:12px;color:var(--ink3);text-align:center}
+.free-note a{color:var(--accent);cursor:pointer}
+
+/* HOW IT WORKS */
+.hiw{padding:4rem 1.5rem;max-width:800px;margin:0 auto}
+.section-label{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.5rem,3vw,2rem);font-weight:800;color:var(--ink);margin-bottom:.75rem}
+.section-sub{font-size:15px;color:var(--ink2);max-width:500px;margin-bottom:2.5rem}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.step-num{width:32px;height:32px;background:var(--accent-light);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--accent);margin-bottom:1rem}
+.step-card h3{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.step-card p{font-size:13px;color:var(--ink2);line-height:1.5}
+
+/* WHO IS IT FOR */
+.for-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:4rem 1.5rem}
+.for-inner{max-width:800px;margin:0 auto}
+.for-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.for-card{border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;display:flex;flex-direction:column;gap:8px}
+.for-icon{font-size:24px}
+.for-card h3{font-size:14px;font-weight:600;color:var(--ink)}
+.for-card p{font-size:13px;color:var(--ink2);line-height:1.5}
+
+/* PRICING */
+.pricing-wrap{max-width:720px;margin:0 auto;padding:4rem 1.5rem}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:2rem}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem}
+.price-card.featured{border-color:var(--accent);border-width:2px;position:relative}
+.popular-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:4px 14px;border-radius:20px;white-space:nowrap}
+.price-name{font-size:13px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.price-amount{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--ink);line-height:1}
+.price-amount small{font-size:14px;font-weight:400;color:var(--ink3);font-family:'Inter',sans-serif}
+.price-desc{font-size:13px;color:var(--ink2);margin:10px 0 16px;line-height:1.5}
+.price-features{list-style:none;margin-bottom:1.5rem;display:flex;flex-direction:column;gap:8px}
+.price-features li{font-size:13px;color:var(--ink2);display:flex;align-items:flex-start;gap:8px}
+.check{width:16px;height:16px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.check svg{width:9px;height:9px;stroke:var(--green);fill:none;stroke-width:2.5}
+.cross{width:16px;height:16px;background:var(--red-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.cross svg{width:9px;height:9px;stroke:var(--red);fill:none;stroke-width:2.5}
+
+/* FAQ */
+.faq-wrap{max-width:640px;margin:0 auto;padding:4rem 1.5rem}
+.faq-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:2rem}
+.faq-item{background:var(--surface)}
+.faq-q{width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:1rem 1.25rem;text-align:left;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;font-family:'Inter',sans-serif;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-q:hover{background:var(--bg)}
+.faq-q .arrow{font-size:18px;color:var(--ink3);transition:transform .2s;flex-shrink:0}
+.faq-q.open .arrow{transform:rotate(45deg)}
+.faq-a{display:none;padding:1rem 1.25rem;font-size:14px;color:var(--ink2);line-height:1.6;background:var(--bg);border-bottom:1px solid var(--border)}
+.faq-a.open{display:block}
+
+/* FOOTER */
+footer{background:var(--ink);color:#aab;padding:3rem 1.5rem 2rem}
+.footer-inner{max-width:800px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;flex-wrap:wrap;gap:1.5rem}
+.footer-brand .logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.footer-brand p{font-size:13px;line-height:1.5;max-width:260px}
+.footer-links h4{font-size:12px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem}
+.footer-links ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.footer-links ul li a{color:#aab;text-decoration:none;font-size:13px;transition:color .2s;cursor:pointer}
+.footer-links ul li a:hover{color:#fff}
+.footer-bottom{border-top:1px solid #333;padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.footer-bottom p{font-size:12px}
+
+/* SIMPLE PAGES */
+.simple-page{max-width:680px;margin:0 auto;padding:3rem 1.5rem}
+.simple-page h1{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--ink);margin-bottom:.5rem}
+.simple-page .meta{font-size:13px;color:var(--ink3);margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.simple-page h2{font-size:17px;font-weight:600;color:var(--ink);margin:2rem 0 .75rem}
+.simple-page p{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:1rem}
+.simple-page ul{padding-left:1.25rem;margin-bottom:1rem}
+.simple-page ul li{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:.4rem}
+.simple-page a{color:var(--accent)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;z-index:999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* PROGRESS */
+.progress-wrap{padding:1.5rem;display:none}
+.progress-bar-bg{background:var(--bg);border-radius:20px;height:8px;overflow:hidden}
+.progress-bar-fill{background:var(--accent);height:100%;border-radius:20px;width:0%;transition:width .4s}
+.progress-text{font-size:13px;color:var(--ink2);margin-top:10px;text-align:center}
+
+@media(max-width:600px){
+  .pricing-grid{grid-template-columns:1fr}
+  .settings-grid{grid-template-columns:1fr}
+  .stats-strip{gap:1.5rem}
+  .footer-top{flex-direction:column}
+  .nav-links a:not(.nav-cta){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('home')">
+    <span class="dot"></span>SilenceCut
+  </a>
+  <div class="nav-links">
+    <a href="#" onclick="showPage('home')">Tool</a>
+    <a href="#" onclick="showPage('pricing')">Pricing</a>
+    <a href="#" onclick="showPage('home');setTimeout(()=>document.getElementById('hiw').scrollIntoView({behavior:'smooth'}),100)">How it works</a>
+    <a href="#" class="nav-cta" onclick="showPage('home');setTimeout(()=>document.getElementById('tool-section').scrollIntoView({behavior:'smooth'}),100)">Try free</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HOME PAGE ═══════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge"><span></span> Processing audio in your browser — no upload to server</div>
+    <h1>Cut the silence.<br><em>Keep the energy.</em></h1>
+    <p>Upload any audio file. We automatically detect and remove empty pauses. Download a tight, professional-sounding recording in seconds.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('tool-section').scrollIntoView({behavior:'smooth'})">Upload audio — it's free</button>
+      <button class="btn-ghost" onclick="showPage('pricing')">See pricing</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="num">~30%</div><div class="lbl">Average time saved</div></div>
+    <div class="stat-item"><div class="num">MP3 WAV M4A</div><div class="lbl">Supported formats</div></div>
+    <div class="stat-item"><div class="num">100% browser</div><div class="lbl">Your audio stays private</div></div>
+    <div class="stat-item"><div class="num">Free</div><div class="lbl">3 files per day</div></div>
+  </div>
+
+  <!-- TOOL SECTION -->
+  <div class="tool-wrap" id="tool-section">
+    <div class="tool-card">
+      <div class="tool-header">
+        <h2>Remove silences from your audio</h2>
+        <div class="step-dots">
+          <div class="step-dot done" id="dot1"></div>
+          <div class="step-dot" id="dot2"></div>
+          <div class="step-dot" id="dot3"></div>
+        </div>
+      </div>
+
+      <!-- UPLOAD ZONE -->
+      <div class="upload-zone" id="uploadZone"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <h3 id="uploadTitle">Drop your audio file here</h3>
+        <p id="uploadSub">or click to browse from your device</p>
+        <div class="file-types">
+          <span class="ft-badge">MP3</span>
+          <span class="ft-badge">WAV</span>
+          <span class="ft-badge">M4A</span>
+          <span class="ft-badge">OGG</span>
+          <span class="ft-badge">Max 50 MB</span>
+        </div>
+        <input type="file" id="fileInput" accept="audio/*" style="display:none" onchange="fileSelected(this)">
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="settings-area" id="settingsArea" style="display:none">
+        <div class="settings-grid">
+          <div class="setting">
+            <label>Silence sensitivity</label>
+            <div class="setting-row">
+              <input type="range" min="1" max="5" value="3" id="sensitivity" oninput="updateSens(this)">
+              <span class="setting-val" id="sensVal">Medium</span>
+            </div>
+          </div>
+          <div class="setting">
+            <label>Min pause to remove</label>
+            <div class="setting-row">
+              <input type="range" min="100" max="1000" step="50" value="300" id="minPause" oninput="document.getElementById('pauseVal').textContent=this.value+'ms'">
+              <span class="setting-val" id="pauseVal">300ms</span>
+            </div>
+          </div>
+        </div>
+        <button class="process-btn" id="processBtn" onclick="processAudio()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Remove silences
+        </button>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <p class="progress-text" id="progressText">Analysing audio...</p>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-area" id="resultArea" style="display:none">
+        <div class="result-stats">
+          <div class="rs"><div class="rv" id="rOriginal">—</div><div class="rl">Original</div></div>
+          <div class="rs highlight"><div class="rv" id="rSaved">—</div><div class="rl">Removed</div></div>
+          <div class="rs"><div class="rv" id="rNew">—</div><div class="rl">New length</div></div>
+        </div>
+        <div class="waveform-wrap">
+          <div class="waveform-label"><span>Original waveform</span><span style="color:var(--red)">■ removed pauses</span></div>
+          <div class="waveform" id="waveform"></div>
+        </div>
+        <button class="download-btn" onclick="downloadResult()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download cleaned audio
+        </button>
+        <p class="free-note">Free plan: 3 exports/day &nbsp;·&nbsp; <a onclick="showPage('pricing')">Upgrade for unlimited →</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="hiw" id="hiw">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Three steps to cleaner audio</div>
+    <p class="section-sub">No software to install. Works right in your browser.</p>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Upload your file</h3>
+        <p>Drag and drop or browse. MP3, WAV, M4A supported up to 50MB on free plan.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Adjust settings</h3>
+        <p>Choose how aggressive the silence detection should be. Default settings work great for most recordings.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Download result</h3>
+        <p>Get your trimmed audio file instantly. Same quality, shorter duration, zero dead air.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHO IS IT FOR -->
+  <div class="for-section">
+    <div class="for-inner">
+      <div class="section-label">Who uses SilenceCut</div>
+      <div class="section-title" style="margin-bottom:1.5rem">Made for creators like you</div>
+      <div class="for-grid">
+        <div class="for-card">
+          <div class="for-icon">🎙️</div>
+          <h3>Podcasters</h3>
+          <p>Remove awkward pauses and filler gaps between topics. Sounds more professional instantly.</p>
+        </div>
+        <div class="for-card">
+          <div class="for-icon">📹</div>
+          <h3>YouTubers</h3>
+          <p>Tighten your voiceover. Less editing time in post, faster uploads.</p>
+        </div>
+        <div class="for-card">
+          <div class="for-icon">🤖</div>
+          <h3>AI voice users</h3>
+          <p>AI-generated audio often has random long pauses. Clean them all out in one click.</p>
+        </div>
+        <div class="for-card">
+          <div class="for-icon">🎓</div>
+          <h3>Educators</h3>
+          <p>Make course recordings tighter and more engaging for students.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div class="faq-wrap">
+    <div class="section-label">FAQ</div>
+    <div class="section-title">Common questions</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is my audio uploaded to your servers? <span class="arrow">+</span></button>
+        <div class="faq-a">No. SilenceCut processes your audio entirely inside your browser using the Web Audio API. Your file never leaves your device. We have no access to your recordings.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What audio formats are supported? <span class="arrow">+</span></button>
+        <div class="faq-a">MP3, WAV, M4A, and OGG are supported. Free plan supports files up to 50MB. Pro plan supports up to 500MB per file.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Will it change the quality of my audio? <span class="arrow">+</span></button>
+        <div class="faq-a">No audio quality is lost. The tool simply removes the silent portions of your file. The rest of your audio remains exactly as it was.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How many files can I process for free? <span class="arrow">+</span></button>
+        <div class="faq-a">You can process 3 files per day on the free plan, no account needed. For unlimited processing, upgrade to the Pro plan for ₹499/month.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I cancel my Pro subscription anytime? <span class="arrow">+</span></button>
+        <div class="faq-a">Yes. Cancel anytime from your account dashboard. No questions asked. You'll retain Pro access until the end of the billing period.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- ═══════════════ END HOME ═══════════════ -->
+
+<!-- ═══════════════ PRICING PAGE ═══════════════ -->
+<div id="page-pricing" class="page">
+  <div class="pricing-wrap">
+    <div class="section-label">Pricing</div>
+    <div class="section-title">Simple, honest pricing</div>
+    <p style="color:var(--ink2);margin-bottom:.5rem">Start free, upgrade when you need more.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">₹0 <small>/ month</small></div>
+        <p class="price-desc">Perfect for trying SilenceCut. No card needed.</p>
+        <ul class="price-features">
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> 3 files per day</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Up to 50MB per file</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> MP3 and WAV support</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Browser-based processing</li>
+          <li><span class="cross"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span> No batch processing</li>
+          <li><span class="cross"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span> No API access</li>
+        </ul>
+        <button class="btn-ghost" style="width:100%" onclick="showPage('home');setTimeout(()=>document.getElementById('tool-section').scrollIntoView({behavior:'smooth'}),100)">Start for free</button>
+      </div>
+      <div class="price-card featured">
+        <div class="popular-tag">Most popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount">₹499 <small>/ month</small></div>
+        <p class="price-desc">For creators who process audio regularly.</p>
+        <ul class="price-features">
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Unlimited files</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Up to 500MB per file</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> All formats (MP3 WAV M4A OGG)</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Batch upload — 10 files at once</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> Priority processing</li>
+          <li><span class="check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span> API access</li>
+        </ul>
+        <button class="btn-primary" style="width:100%" onclick="startCheckout()">Upgrade to Pro — ₹499/month</button>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--ink3);text-align:center;margin-top:1.5rem">All payments via Razorpay &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; Secure &amp; encrypted</p>
+  </div>
+</div>
+
+<!-- ═══════════════ TERMS PAGE ═══════════════ -->
+<div id="page-terms" class="page">
+  <div class="simple-page">
+    <h1>Terms of Service</h1>
+    <p class="meta">Last updated: January 2025</p>
+    <p>By using SilenceCut ("the Service"), you agree to these terms. Please read them carefully.</p>
+    <h2>1. What we provide</h2>
+    <p>SilenceCut is an online tool that processes audio files to remove silent pauses. The free plan allows 3 file exports per day. The Pro plan (₹499/month) allows unlimited exports with larger file sizes and additional features.</p>
+    <h2>2. Your audio files</h2>
+    <p>SilenceCut processes your audio entirely within your browser. We do not upload, store, or access your audio files on our servers. You retain full ownership of your files at all times.</p>
+    <h2>3. Acceptable use</h2>
+    <p>You agree not to use SilenceCut to process audio that:</p>
+    <ul>
+      <li>Infringes on any copyright or intellectual property rights</li>
+      <li>Contains illegal content of any kind</li>
+      <li>Is intended for unlawful purposes</li>
+    </ul>
+    <h2>4. Payments and refunds</h2>
+    <p>Pro subscriptions are billed monthly via Razorpay. You can cancel at any time. We offer a 7-day refund if you are not satisfied — contact us at support@silencecut.in within 7 days of payment.</p>
+    <h2>5. Limitation of liability</h2>
+    <p>SilenceCut is provided "as is." We are not liable for any loss of data or damages resulting from use of the service. Always keep a copy of your original files.</p>
+    <h2>6. Changes to terms</h2>
+    <p>We may update these terms from time to time. Continued use of the service means you accept the updated terms.</p>
+    <h2>Contact</h2>
+    <p>Questions? Email us at <a href="mailto:support@silencecut.in">support@silencecut.in</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════ PRIVACY PAGE ═══════════════ -->
+<div id="page-privacy" class="page">
+  <div class="simple-page">
+    <h1>Privacy Policy</h1>
+    <p class="meta">Last updated: January 2025</p>
+    <p>Your privacy matters to us. This policy explains exactly what data SilenceCut collects and how we use it.</p>
+    <h2>1. Audio files — we never see them</h2>
+    <p>All audio processing happens inside your browser using the Web Audio API. Your audio files are never sent to our servers. We have absolutely no access to your recordings.</p>
+    <h2>2. Data we do collect</h2>
+    <p>When you sign up for Pro, we collect:</p>
+    <ul>
+      <li>Your email address (for account and billing)</li>
+      <li>Payment details (handled securely by Razorpay — we never see your card number)</li>
+      <li>Basic usage stats (number of files processed, not the files themselves)</li>
+    </ul>
+    <h2>3. Cookies</h2>
+    <p>We use minimal cookies only to keep you logged in and to remember your plan. We do not use advertising or tracking cookies.</p>
+    <h2>4. Third-party services</h2>
+    <p>We use Razorpay for payment processing. Their privacy policy applies to payment data. We do not share your information with any other third parties.</p>
+    <h2>5. Data deletion</h2>
+    <p>You can request deletion of your account and all associated data at any time by emailing us at <a href="mailto:support@silencecut.in">support@silencecut.in</a>. We will process the request within 7 business days.</p>
+    <h2>6. Security</h2>
+    <p>We use HTTPS encryption for all communications. Payment data is handled entirely by Razorpay and is never stored on our servers.</p>
+    <h2>Contact</h2>
+    <p>Privacy questions: <a href="mailto:support@silencecut.in">support@silencecut.in</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════ REFUND PAGE ═══════════════ -->
+<div id="page-refund" class="page">
+  <div class="simple-page">
+    <h1>Refund Policy</h1>
+    <p class="meta">Last updated: January 2025</p>
+    <p>We want you to be happy with SilenceCut. Here is our simple refund policy.</p>
+    <h2>7-day money-back guarantee</h2>
+    <p>If you upgrade to Pro and are not satisfied for any reason, contact us within 7 days of your payment and we will issue a full refund — no questions asked.</p>
+    <h2>How to request a refund</h2>
+    <p>Email us at <a href="mailto:support@silencecut.in">support@silencecut.in</a> with the subject line "Refund Request" and include the email address you used to sign up. We will process your refund within 3–5 business days.</p>
+    <h2>After 7 days</h2>
+    <p>Refunds are not available after 7 days from the payment date. However, you can cancel your subscription at any time to stop future charges.</p>
+    <h2>Cancellation</h2>
+    <p>You can cancel your Pro subscription at any time from your account settings. After cancellation, you will retain Pro access until the end of your current billing period.</p>
+    <h2>Contact</h2>
+    <p>Refund questions: <a href="mailto:support@silencecut.in">support@silencecut.in</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">● SilenceCut</div>
+        <p>Remove silent pauses from your audio instantly. Built for creators, podcasters, and AI voice users.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Product</h4>
+        <ul>
+          <li><a onclick="showPage('home')">Tool</a></li>
+          <li><a onclick="showPage('pricing')">Pricing</a></li>
+          <li><a onclick="showPage('home');setTimeout(()=>document.getElementById('hiw').scrollIntoView({behavior:'smooth'}),100)">How it works</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Legal</h4>
+        <ul>
+          <li><a onclick="showPage('terms')">Terms of Service</a></li>
+          <li><a onclick="showPage('privacy')">Privacy Policy</a></li>
+          <li><a onclick="showPage('refund')">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="mailto:support@silencecut.in">support@silencecut.in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 SilenceCut. All rights reserved.</p>
+      <p>Made in India 🇮🇳</p>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- RAZORPAY (load when needed) -->
+<script>
+// ── PAGE ROUTING ──
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── TOAST ──
+function showToast(msg,dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ── FAQ ──
+function toggleFaq(btn){
+  const ans=btn.nextElementSibling;
+  const isOpen=btn.classList.contains('open');
+  document.querySelectorAll('.faq-q').forEach(q=>q.classList.remove('open'));
+  document.querySelectorAll('.faq-a').forEach(a=>a.classList.remove('open'));
+  if(!isOpen){btn.classList.add('open');ans.classList.add('open');}
+}
+
+// ── SENSITIVITY LABELS ──
+const sensLabels=['','Very low','Low','Medium','High','Aggressive'];
+function updateSens(el){
+  document.getElementById('sensVal').textContent=sensLabels[el.value];
+}
+
+// ── FILE HANDLING ──
+let selectedFile=null;
+function fileSelected(inp){
+  if(!inp.files[0])return;
+  selectedFile=inp.files[0];
+  document.getElementById('uploadTitle').textContent='✓ '+selectedFile.name;
+  document.getElementById('uploadSub').textContent=formatSize(selectedFile.size)+' — ready to process';
+  document.getElementById('settingsArea').style.display='block';
+  document.getElementById('resultArea').style.display='none';
+  document.getElementById('dot2').classList.add('done');
+  showToast('File loaded! Adjust settings and click remove silences.');
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('audio/')){
+    document.getElementById('fileInput').files;
+    selectedFile=f;
+    document.getElementById('uploadTitle').textContent='✓ '+f.name;
+    document.getElementById('uploadSub').textContent=formatSize(f.size)+' — ready to process';
+    document.getElementById('settingsArea').style.display='block';
+    document.getElementById('resultArea').style.display='none';
+    document.getElementById('dot2').classList.add('done');
+    showToast('File loaded!');
+  }else{
+    showToast('Please upload an audio file (MP3, WAV, M4A, OGG)');
+  }
+}
+
+function formatSize(bytes){
+  if(bytes<1024*1024)return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/(1024*1024)).toFixed(1)+' MB';
+}
+
+// ── PROCESS AUDIO ──
+function processAudio(){
+  if(!selectedFile){showToast('Please upload a file first.');return;}
+  const pw=document.getElementById('progressWrap');
+  const sa=document.getElementById('settingsArea');
+  const ra=document.getElementById('resultArea');
+  sa.style.display='none';
+  pw.style.display='block';
+  ra.style.display='none';
+
+  const fill=document.getElementById('progressFill');
+  const txt=document.getElementById('progressText');
+  const steps=[
+    [10,'Reading audio file...'],
+    [35,'Detecting silence regions...'],
+    [65,'Removing pauses...'],
+    [90,'Rendering cleaned audio...'],
+    [100,'Done!']
+  ];
+  let i=0;
+  const interval=setInterval(()=>{
+    if(i>=steps.length){
+      clearInterval(interval);
+      setTimeout(showResult,400);
+      return;
+    }
+    fill.style.width=steps[i][0]+'%';
+    txt.textContent=steps[i][1];
+    i++;
+  },500);
+}
+
+function showResult(){
+  const pw=document.getElementById('progressWrap');
+  const ra=document.getElementById('resultArea');
+  pw.style.display='none';
+  ra.style.display='block';
+  document.getElementById('dot3').classList.add('done');
+
+  // Simulated stats
+  const origSec=Math.floor(Math.random()*120)+60;
+  const removedSec=Math.floor(origSec*0.18+Math.random()*20);
+  const newSec=origSec-removedSec;
+  document.getElementById('rOriginal').textContent=fmtTime(origSec);
+  document.getElementById('rSaved').textContent='-'+fmtTime(removedSec);
+  document.getElementById('rNew').textContent=fmtTime(newSec);
+
+  // Draw waveform
+  const wf=document.getElementById('waveform');
+  wf.innerHTML='';
+  const silentZones=[[18,25],[42,50],[70,76]];
+  for(let i=0;i<100;i++){
+    const bar=document.createElement('div');
+    bar.className='wvbar';
+    let isSilent=false;
+    for(const [a,b] of silentZones)if(i>=a&&i<=b)isSilent=true;
+    if(isSilent){
+      bar.style.cssText='background:#e17055;opacity:.4;height:20px';
+    }else{
+      const h=Math.max(8,Math.floor(Math.random()*52+8));
+      bar.style.cssText='background:#6c5ce7;height:'+h+'px';
+    }
+    wf.appendChild(bar);
+  }
+  showToast('Silences removed! Download your file below.');
+}
+
+function fmtTime(sec){
+  const m=Math.floor(sec/60);
+  const s=sec%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+
+function downloadResult(){
+  // In production: this triggers actual Web Audio API processed file download
+  showToast('In your live website, the cleaned audio file will download here!');
+}
+
+// ── RAZORPAY CHECKOUT ──
+function startCheckout(){
+  // Load Razorpay script dynamically
+  if(window.Razorpay){openRazorpay();return;}
+  const s=document.createElement('script');
+  s.src='https://checkout.razorpay.com/v1/checkout.js';
+  s.onload=openRazorpay;
+  document.head.appendChild(s);
+}
+
+function openRazorpay(){
+  const options={
+    key:'YOUR_RAZORPAY_KEY_ID', // <-- Replace with your key
+    amount:49900, // ₹499 in paise
+    currency:'INR',
+    name:'SilenceCut',
+    description:'Pro Plan — Monthly Subscription',
+    image:'', // Add your logo URL here
+    prefill:{
+      email:'',
+      contact:''
+    },
+    theme:{color:'#6c5ce7'},
+    handler:function(response){
+      showToast('Payment successful! Welcome to Pro 🎉');
+      // In production: verify payment signature on your backend here
+    }
+  };
+  const rzp=new Razorpay(options);
+  rzp.on('payment.failed',function(response){
+    showToast('Payment failed. Please try again.');
+  });
+  rzp.open();
+}
+</script>
+</body>
+</html>

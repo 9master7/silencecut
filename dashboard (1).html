@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SilenceCut Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><span class="logo-dot"></span>SilenceCut<span class="logo-pro">Pro</span></a>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+    <span style="font-size:13px;color:var(--ink3)" id="navUserEmail"></span>
+    <button class="btn-ghost-sm" onclick="logout()">Log out</button>
+  </div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-link active"><span class="icon">🎙️</span> Clean Audio</a>
+    <a href="subscription.html" class="sidebar-link"><span class="icon">💳</span> Subscription</a>
+    <div class="sidebar-divider"></div>
+    <a href="pricing.html" class="sidebar-link"><span class="icon">⬆️</span> Upgrade</a>
+    <a href="contact.html" class="sidebar-link"><span class="icon">💬</span> Support</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Log out</a>
+  </div>
+
+  <div class="dashboard-main">
+    <div class="dash-greeting">
+      <h2>Clean your audio ✨</h2>
+      <p>Upload a file — silences and dead air will be removed automatically.</p>
+    </div>
+
+    <!-- USAGE CARDS -->
+    <div class="usage-cards">
+      <div class="usage-card">
+        <div class="uc-label">Current Plan</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="plan-badge" id="planBadge">⚡ Free</span>
+          <a href="pricing.html" style="font-size:12px;color:var(--accent)">Upgrade →</a>
+        </div>
+      </div>
+      <div class="usage-card">
+        <div class="uc-label">Files Used</div>
+        <div class="uc-val"><span id="usedFiles">0</span> / <span id="maxFiles">3</span></div>
+        <div class="uc-bar-bg"><div class="uc-bar-fill" id="usageBar" style="width:0%"></div></div>
+        <div class="uc-note" id="usageNote">3 files remaining</div>
+      </div>
+      <div class="usage-card">
+        <div class="uc-label">Max File Length</div>
+        <div class="uc-val" id="maxLength">10 min</div>
+        <div class="uc-note">Upgrade for longer files</div>
+      </div>
+      <div class="usage-card">
+        <div class="uc-label">Resets On</div>
+        <div class="uc-val" id="resetDate">—</div>
+        <div class="uc-note">Monthly reset</div>
+      </div>
+    </div>
+
+    <!-- STATUS NOTICE -->
+    <div id="engineNotice" style="background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:1.25rem;font-size:13px;color:var(--accent);display:flex;align-items:center;gap:8px">
+      <span id="engineStatus">⏳ Loading audio engine...</span>
+    </div>
+
+    <!-- UPLOAD SECTION -->
+    <div id="uploadSection">
+      <div class="dash-section-title">Upload Audio File</div>
+      <div class="upload-zone" id="uploadZone"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <div class="upload-zone-icon">🎵</div>
+        <h3 id="uploadTitle">Drop your audio file here</h3>
+        <p id="uploadSub">or click to browse · MP3, WAV, M4A, OGG</p>
+        <div class="file-tags">
+          <span class="file-tag">MP3</span><span class="file-tag">WAV</span>
+          <span class="file-tag">M4A</span><span class="file-tag">OGG</span>
+          <span class="file-tag" id="maxSizeTag">Max 50MB</span>
+        </div>
+        <input type="file" id="fileInput" accept="audio/*" style="display:none" onchange="fileSelected(this)">
+      </div>
+
+      <div class="settings-panel" id="settingsPanel" style="display:none">
+        <h3>Cleanup Settings</h3>
+        <div class="toggles-grid">
+          <div class="toggle-row">
+            <span class="toggle-label">🔇 Silence Removal</span>
+            <label class="toggle-switch"><input type="checkbox" id="toggleSilence" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">📊 Volume Normalization</span>
+            <label class="toggle-switch"><input type="checkbox" id="toggleVol" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="sliders-grid">
+          <div class="slider-item">
+            <label>Silence threshold</label>
+            <div class="slider-row">
+              <input type="range" min="-60" max="-20" value="-35" id="silenceThresh" oninput="document.getElementById('threshLabel').textContent=this.value+'dB'">
+              <span class="slider-val" id="threshLabel">-35dB</span>
+            </div>
+          </div>
+          <div class="slider-item">
+            <label>Min pause to remove</label>
+            <div class="slider-row">
+              <input type="range" min="200" max="1500" step="100" value="500" id="minPause" oninput="document.getElementById('pauseLabel').textContent=this.value+'ms'">
+              <span class="slider-val" id="pauseLabel">500ms</span>
+            </div>
+          </div>
+        </div>
+        <button class="process-btn" id="processBtn" onclick="startProcessing()">
+          ⚡ Remove silences & clean audio
+        </button>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-panel" id="progressPanel" style="display:none">
+      <div class="dash-section-title">Processing your audio...</div>
+      <div class="progress-steps">
+        <div class="progress-step"><div class="step-icon pending" id="si0">1</div><span class="step-text" id="st0">Reading audio file</span></div>
+        <div class="progress-step"><div class="step-icon pending" id="si1">2</div><span class="step-text" id="st1">Detecting silent regions</span></div>
+        <div class="progress-step"><div class="step-icon pending" id="si2">3</div><span class="step-text" id="st2">Removing silences</span></div>
+        <div class="progress-step"><div class="step-icon pending" id="si3">4</div><span class="step-text" id="st3">Normalizing volume</span></div>
+        <div class="progress-step"><div class="step-icon pending" id="si4">5</div><span class="step-text" id="st4">Exporting cleaned audio</span></div>
+      </div>
+      <div class="progress-bar-bg" style="margin-top:1rem"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <p style="font-size:13px;color:var(--ink3);margin-top:.75rem;text-align:center" id="progressMsg">Please wait...</p>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-panel" id="resultPanel" style="display:none">
+      <div class="dash-section-title">✅ Audio cleaned successfully!</div>
+      <div class="result-stats">
+        <div class="rs"><div class="rv" id="rOrig">—</div><div class="rl">Original</div></div>
+        <div class="rs green"><div class="rv" id="rRemoved">—</div><div class="rl">Removed</div></div>
+        <div class="rs"><div class="rv" id="rNew">—</div><div class="rl">New Length</div></div>
+      </div>
+      <div class="before-after-player">
+        <div class="player-box">
+          <div class="player-label before">● BEFORE (Original)</div>
+          <audio id="audioOriginal" controls style="width:100%;margin-top:.5rem;border-radius:8px"></audio>
+        </div>
+        <div class="player-box">
+          <div class="player-label after">● AFTER (Cleaned)</div>
+          <audio id="audioCleaned" controls style="width:100%;margin-top:.5rem;border-radius:8px"></audio>
+        </div>
+      </div>
+      <div class="download-row">
+        <button class="download-btn" onclick="downloadCleaned()">⬇ Download Cleaned Audio</button>
+        <button class="download-btn secondary" onclick="resetTool()">← Process Another File</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script>
+// ── STATE ──
+let selectedFile = null;
+let cleanedBlob = null;
+let originalBlob = null;
+let audioCtx = null;
+let usedCount = 0;
+
+const PLAN_LIMITS = {
+  free:    { files: 3,    label: '⚡ Free',    maxLen: '10 min', maxMB: 50  },
+  starter: { files: 50,   label: '🚀 Starter', maxLen: '30 min', maxMB: 200 },
+  pro:     { files: 9999, label: '💎 Pro',     maxLen: '2 hours',maxMB: 500 },
+  agency:  { files: 9999, label: '🏢 Agency',  maxLen: '2 hours',maxMB: 500 },
+};
+
+// ── INIT WEB AUDIO ──
+function initAudioEngine() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    setEngineStatus('✅ Audio engine ready! Upload your file below.', 'green');
+  } catch(e) {
+    setEngineStatus('⚠️ Browser does not support audio processing. Please use Chrome or Firefox.', 'red');
+  }
+}
+
+function setEngineStatus(msg, color) {
+  const el = document.getElementById('engineNotice');
+  const st = document.getElementById('engineStatus');
+  st.textContent = msg;
+  if (color === 'green') {
+    el.style.background = 'var(--green-light)';
+    el.style.borderColor = 'var(--green)';
+    st.style.color = 'var(--green)';
+  } else if (color === 'red') {
+    el.style.background = 'var(--red-light)';
+    el.style.borderColor = 'var(--red)';
+    st.style.color = 'var(--red)';
+  }
+}
+
+// ── DASHBOARD INIT ──
+function initDashboard() {
+  const user = getUser() || { email: 'Guest', plan: 'free' };
+  const plan = user.plan || 'free';
+  const limits = PLAN_LIMITS[plan];
+  usedCount = parseInt(localStorage.getItem('sc_used_' + currentMonth()) || '0');
+
+  if (user.email && user.email !== 'Guest') document.getElementById('navUserEmail').textContent = user.email;
+  document.getElementById('planBadge').textContent = limits.label;
+  document.getElementById('usedFiles').textContent = usedCount;
+  document.getElementById('maxFiles').textContent = limits.files >= 9999 ? '∞' : limits.files;
+  document.getElementById('maxLength').textContent = limits.maxLen;
+  document.getElementById('maxSizeTag').textContent = 'Max ' + limits.maxMB + 'MB';
+
+  const pct = limits.files >= 9999 ? 10 : Math.min(100, (usedCount / limits.files) * 100);
+  document.getElementById('usageBar').style.width = pct + '%';
+  const remaining = limits.files >= 9999 ? '∞' : Math.max(0, limits.files - usedCount);
+  document.getElementById('usageNote').textContent = remaining + ' files remaining this month';
+
+  const reset = new Date(); reset.setMonth(reset.getMonth() + 1, 1);
+  document.getElementById('resetDate').textContent = reset.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+function currentMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth() + 1);
+}
+
+// ── FILE HANDLING ──
+function fileSelected(inp) {
+  if (!inp.files[0]) return;
+  selectedFile = inp.files[0];
+  document.getElementById('uploadTitle').textContent = '✓ ' + selectedFile.name;
+  document.getElementById('uploadSub').textContent = fmtSize(selectedFile.size) + ' · Ready to process';
+  document.getElementById('settingsPanel').style.display = 'block';
+  document.getElementById('resultPanel').style.display = 'none';
+  cleanedBlob = null;
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('audio/')) {
+    selectedFile = f;
+    document.getElementById('uploadTitle').textContent = '✓ ' + f.name;
+    document.getElementById('uploadSub').textContent = fmtSize(f.size) + ' · Ready to process';
+    document.getElementById('settingsPanel').style.display = 'block';
+    cleanedBlob = null;
+  } else {
+    showToast('Please upload an audio file.', 'error');
+  }
+}
+
+// ── CORE: SILENCE REMOVAL using Web Audio API ──
+async function removeSilences(audioBuffer, thresholdDb, minSilenceSec) {
+  const threshold = Math.pow(10, thresholdDb / 20); // dB to linear
+  const sampleRate = audioBuffer.sampleRate;
+  const numChannels = audioBuffer.numberOfChannels;
+  const minSilenceSamples = Math.floor(minSilenceSec * sampleRate);
+  const frameSizeSamples = Math.floor(0.02 * sampleRate); // 20ms frames
+
+  // Get channel data
+  const channels = [];
+  for (let c = 0; c < numChannels; c++) channels.push(audioBuffer.getChannelData(c));
+  const totalSamples = audioBuffer.length;
+
+  // Find silent regions
+  const keepRegions = [];
+  let i = 0;
+  let regionStart = 0;
+  let inSilence = false;
+  let silenceStart = 0;
+
+  while (i < totalSamples) {
+    // RMS of frame
+    let sum = 0;
+    const end = Math.min(i + frameSizeSamples, totalSamples);
+    for (let j = i; j < end; j++) {
+      let maxVal = 0;
+      for (let c = 0; c < numChannels; c++) maxVal = Math.max(maxVal, Math.abs(channels[c][j]));
+      sum += maxVal * maxVal;
+    }
+    const rms = Math.sqrt(sum / (end - i));
+
+    if (rms < threshold) {
+      if (!inSilence) { inSilence = true; silenceStart = i; }
+    } else {
+      if (inSilence) {
+        const silenceLen = i - silenceStart;
+        if (silenceLen >= minSilenceSamples) {
+          // Long silence found — keep up to silence start, skip silence
+          if (silenceStart > regionStart) keepRegions.push([regionStart, silenceStart]);
+          regionStart = i;
+        }
+        inSilence = false;
+      }
+    }
+    i = end;
+  }
+  // Keep remaining
+  if (regionStart < totalSamples) keepRegions.push([regionStart, totalSamples]);
+
+  // Calculate total kept samples
+  let totalKept = 0;
+  for (const [s, e] of keepRegions) totalKept += e - s;
+
+  if (totalKept === 0) return audioBuffer; // Nothing to remove
+
+  // Build new AudioBuffer
+  const newBuffer = audioCtx.createBuffer(numChannels, totalKept, sampleRate);
+  for (let c = 0; c < numChannels; c++) {
+    const srcData = channels[c];
+    const dstData = newBuffer.getChannelData(c);
+    let offset = 0;
+    for (const [s, e] of keepRegions) {
+      dstData.set(srcData.subarray(s, e), offset);
+      offset += e - s;
+    }
+  }
+  return newBuffer;
+}
+
+// ── NORMALIZE volume ──
+function normalizeAudioBuffer(buffer) {
+  const numChannels = buffer.numberOfChannels;
+  let maxVal = 0;
+  for (let c = 0; c < numChannels; c++) {
+    const data = buffer.getChannelData(c);
+    for (let i = 0; i < data.length; i++) maxVal = Math.max(maxVal, Math.abs(data[i]));
+  }
+  if (maxVal === 0 || maxVal >= 0.99) return buffer;
+  const gain = 0.95 / maxVal;
+  for (let c = 0; c < numChannels; c++) {
+    const data = buffer.getChannelData(c);
+    for (let i = 0; i < data.length; i++) data[i] *= gain;
+  }
+  return buffer;
+}
+
+// ── ENCODE AudioBuffer to WAV ──
+function audioBufferToWav(buffer) {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const format = 1; // PCM
+  const bitDepth = 16;
+  const bytesPerSample = bitDepth / 8;
+  const blockAlign = numChannels * bytesPerSample;
+  const numSamples = buffer.length;
+  const dataSize = numSamples * blockAlign;
+  const wavBuffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(wavBuffer);
+
+  function writeString(offset, str) {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  }
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, format, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitDepth, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < numSamples; i++) {
+    for (let c = 0; c < numChannels; c++) {
+      const sample = Math.max(-1, Math.min(1, buffer.getChannelData(c)[i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+  return new Blob([wavBuffer], { type: 'audio/wav' });
+}
+
+// ── MAIN PROCESSING ──
+async function startProcessing() {
+  if (!selectedFile) { showToast('Please upload a file first.', 'error'); return; }
+  if (!audioCtx) { showToast('Audio engine not ready. Please refresh.', 'error'); return; }
+
+  const user = getUser() || { plan: 'free' };
+  const limits = PLAN_LIMITS[user.plan || 'free'];
+  if (limits.files < 9999 && usedCount >= limits.files) {
+    showToast('Monthly limit reached! Upgrade for more files.', 'error');
+    setTimeout(() => window.location.href = 'pricing.html', 2000);
+    return;
+  }
+
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('progressPanel').style.display = 'block';
+  document.getElementById('resultPanel').style.display = 'none';
+
+  try {
+    // Step 1 — Read file
+    setStep(0, 10, 'Reading audio file...');
+    const arrayBuf = await selectedFile.arrayBuffer();
+    originalBlob = new Blob([arrayBuf], { type: selectedFile.type });
+
+    // Step 2 — Decode
+    setStep(1, 30, 'Detecting silent regions...');
+    const audioBuf = await audioCtx.decodeAudioData(arrayBuf.slice(0));
+
+    // Step 3 — Remove silences
+    setStep(2, 55, 'Removing silences...');
+    const threshDb = parseFloat(document.getElementById('silenceThresh').value);
+    const minSilSec = parseInt(document.getElementById('minPause').value) / 1000;
+    const doSilence = document.getElementById('toggleSilence').checked;
+    let processed = doSilence ? await removeSilences(audioBuf, threshDb, minSilSec) : audioBuf;
+
+    // Step 4 — Normalize
+    setStep(3, 80, 'Normalizing volume...');
+    const doNorm = document.getElementById('toggleVol').checked;
+    if (doNorm) processed = normalizeAudioBuffer(processed);
+
+    // Step 5 — Export WAV
+    setStep(4, 95, 'Exporting cleaned audio...');
+    cleanedBlob = audioBufferToWav(processed);
+    document.getElementById('progressFill').style.width = '100%';
+
+    await showResult(audioBuf.duration, processed.duration);
+
+  } catch (err) {
+    console.error(err);
+    showToast('Processing error: ' + err.message, 'error');
+    resetTool();
+  }
+}
+
+function setStep(i, pct, msg) {
+  for (let j = 0; j < i; j++) {
+    document.getElementById('si' + j).className = 'step-icon done';
+    document.getElementById('si' + j).textContent = '✓';
+    document.getElementById('st' + j).className = 'step-text done';
+  }
+  document.getElementById('si' + i).className = 'step-icon active';
+  document.getElementById('st' + i).className = 'step-text active';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressMsg').textContent = msg;
+}
+
+async function showResult(origDuration, newDuration) {
+  document.getElementById('progressPanel').style.display = 'none';
+  document.getElementById('resultPanel').style.display = 'block';
+
+  const origSec = Math.round(origDuration);
+  const newSec = Math.round(newDuration);
+  const removedSec = Math.max(0, origSec - newSec);
+  document.getElementById('rOrig').textContent = fmtTime(origSec);
+  document.getElementById('rRemoved').textContent = '-' + fmtTime(removedSec);
+  document.getElementById('rNew').textContent = fmtTime(newSec);
+
+  // Audio players
+  const origURL = URL.createObjectURL(originalBlob);
+  const cleanURL = URL.createObjectURL(cleanedBlob);
+  document.getElementById('audioOriginal').src = origURL;
+  document.getElementById('audioCleaned').src = cleanURL;
+
+  // Update usage
+  usedCount++;
+  localStorage.setItem('sc_used_' + currentMonth(), usedCount);
+  initDashboard();
+  showToast('Audio cleaned! Download below.', 'success');
+}
+
+function downloadCleaned() {
+  if (!cleanedBlob) { showToast('No processed file.', 'error'); return; }
+  const name = selectedFile.name.replace(/\.[^.]+$/, '') + '_cleaned.wav';
+  const url = URL.createObjectURL(cleanedBlob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Download started! 🎉', 'success');
+}
+
+function resetTool() {
+  selectedFile = null; cleanedBlob = null; originalBlob = null;
+  document.getElementById('uploadSection').style.display = 'block';
+  document.getElementById('settingsPanel').style.display = 'none';
+  document.getElementById('progressPanel').style.display = 'none';
+  document.getElementById('resultPanel').style.display = 'none';
+  document.getElementById('uploadTitle').textContent = 'Drop your audio file here';
+  document.getElementById('uploadSub').textContent = 'or click to browse · MP3, WAV, M4A, OGG';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('progressFill').style.width = '0%';
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('si' + i).className = 'step-icon pending';
+    document.getElementById('si' + i).textContent = i + 1;
+    document.getElementById('st' + i).className = 'step-text';
+  }
+}
+
+initDashboard();
+initAudioEngine();
+</script>
+</body>
+</html>

@@ -15,7 +15,7 @@
   <div class="nav-right">
     <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
     <span style="font-size:13px;color:var(--ink3)" id="navUserEmail"></span>
-    <button class="btn-ghost-sm" onclick="logout()">Log out</button>
+    <button class="btn-ghost-sm" onclick="firebaseLogout()">Log out</button>
   </div>
 </div></nav>
 
@@ -27,7 +27,7 @@
     <a href="pricing.html" class="sidebar-link"><span class="icon">⬆️</span> Upgrade</a>
     <a href="contact.html" class="sidebar-link"><span class="icon">💬</span> Support</a>
     <div class="sidebar-divider"></div>
-    <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Log out</a>
+    <a href="#" class="sidebar-link" onclick="firebaseLogout()"><span class="icon">🚪</span> Log out</a>
   </div>
 
   <div class="dashboard-main">
@@ -505,5 +505,53 @@ function resetTool() {
 initDashboard();
 initAudioEngine();
 </script>
+
+<!-- FIREBASE AUTH CHECK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBeyFUhTm5M5dEMi87tIL4msuFtrCbc80A",
+    authDomain: "silencecutpro.firebaseapp.com",
+    projectId: "silencecutpro",
+    storageBucket: "silencecutpro.firebasestorage.app",
+    messagingSenderId: "314976670189",
+    appId: "1:314976670189:web:ac7c6ec8c1cfd864f657e4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    // Save user to localStorage
+    const stored = JSON.parse(localStorage.getItem("sc_user") || "{}");
+    localStorage.setItem("sc_user", JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName || user.email,
+      photo: user.photoURL || "",
+      plan: stored.plan || "free"
+    }));
+    // Show user photo if available
+    if (user.photoURL) {
+      const img = document.getElementById('userPhoto');
+      if (img) { img.src = user.photoURL; img.style.display = 'block'; }
+    }
+    const nameEl = document.getElementById('navUserEmail');
+    if (nameEl) nameEl.textContent = user.displayName || user.email;
+  });
+
+  window.firebaseLogout = async function() {
+    await signOut(auth);
+    localStorage.removeItem("sc_user");
+    window.location.href = "login.html";
+  };
+</script>
+
 </body>
 </html>

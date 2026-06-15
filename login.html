@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — SilenceCut Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light">
+
+<div class="auth-wrap">
+  <div id="loginCard" class="auth-card">
+    <div class="auth-logo">● SilenceCut<span style="color:var(--accent)">Pro</span></div>
+    <h2>Welcome back</h2>
+    <p class="auth-sub">Log in to your account to continue cleaning audio.</p>
+
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Your password">
+    </div>
+    <button class="btn-primary form-btn" onclick="doLogin()">Log in</button>
+
+    <div class="auth-divider"><span>or</span></div>
+    <button class="btn-outline form-btn" onclick="guestLogin()" style="margin-top:0">Continue as Guest (Free Plan)</button>
+
+    <div class="auth-switch">Don't have an account? <a href="#" onclick="showSignup()">Sign up free</a></div>
+  </div>
+
+  <div id="signupCard" class="auth-card" style="display:none">
+    <div class="auth-logo">● SilenceCut<span style="color:var(--accent)">Pro</span></div>
+    <h2>Create account</h2>
+    <p class="auth-sub">Start with 3 free audio cleanups. No card needed.</p>
+
+    <div class="form-group">
+      <label>Full name</label>
+      <input type="text" id="signupName" placeholder="Your name">
+    </div>
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="signupEmail" placeholder="you@example.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="signupPassword" placeholder="Min 8 characters">
+    </div>
+    <button class="btn-primary form-btn" onclick="doSignup()">Create free account</button>
+
+    <div class="auth-switch">Already have an account? <a href="#" onclick="showLogin()">Log in</a></div>
+    <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:.75rem">By signing up you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script>
+function showSignup() {
+  document.getElementById('loginCard').style.display = 'none';
+  document.getElementById('signupCard').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('signupCard').style.display = 'none';
+  document.getElementById('loginCard').style.display = 'block';
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  if (!email || !pass) { showToast('Please fill in all fields.', 'error'); return; }
+  // Demo auth — in production connect to your backend
+  const stored = JSON.parse(localStorage.getItem('sc_accounts') || '{}');
+  if (stored[email] && stored[email].password === pass) {
+    setUser({ email, plan: stored[email].plan || 'free' });
+    showToast('Welcome back!', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  } else {
+    showToast('Invalid email or password.', 'error');
+  }
+}
+
+function doSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPassword').value;
+  if (!name || !email || !pass) { showToast('Please fill in all fields.', 'error'); return; }
+  if (pass.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
+  const accounts = JSON.parse(localStorage.getItem('sc_accounts') || '{}');
+  if (accounts[email]) { showToast('Account already exists. Please log in.', 'error'); return; }
+  accounts[email] = { name, password: pass, plan: 'free' };
+  localStorage.setItem('sc_accounts', JSON.stringify(accounts));
+  setUser({ email, name, plan: 'free' });
+  showToast('Account created! Welcome 🎉', 'success');
+  setTimeout(() => window.location.href = 'dashboard.html', 800);
+}
+
+function guestLogin() {
+  setUser({ email: 'Guest', plan: 'free' });
+  window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

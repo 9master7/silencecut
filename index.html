@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SilenceCut Pro — Remove Pauses, Breaths & Dead Air in Seconds</title>
+<meta name="description" content="AI-powered audio cleanup tool for creators, podcasters, YouTubers, audiobook creators and voiceover artists. Remove silence, breaths, noise in seconds.">
+<meta property="og:title" content="SilenceCut Pro — AI Audio Cleanup for Creators">
+<meta property="og:description" content="Remove pauses, breaths & dead air from your audio in seconds. Try 3 free cleanups.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://silencecutpro.vercel.app">
+<link rel="canonical" href="https://silencecutpro.vercel.app">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light">
+
+<!-- NAV -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-dot"></span>SilenceCut<span class="logo-pro">Pro</span>
+    </a>
+    <div class="nav-center">
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">☀️</button>
+      <a href="login.html" class="btn-ghost-sm">Log in</a>
+      <a href="dashboard.html" class="btn-primary-sm">Try Free</a>
+    </div>
+    <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="features.html">Features</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="login.html">Log in</a>
+    <a href="dashboard.html" class="btn-primary-sm" style="text-align:center">Try Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="badge-dot"></span> AI-Powered Audio Cleanup
+    </div>
+    <h1>Remove Pauses, Breaths<br>&amp; Dead Air <em>in Seconds</em></h1>
+    <p class="hero-sub">The fastest audio cleanup tool for Creators, Podcasters, YouTubers,<br>Audiobook Creators and Voiceover Artists.</p>
+    <div class="hero-actions">
+      <a href="dashboard.html" class="btn-primary btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload Audio Free
+      </a>
+      <a href="pricing.html" class="btn-outline btn-lg">See Pricing</a>
+    </div>
+    <p class="hero-note">✓ Try 3 Free Audio Cleanups &nbsp;·&nbsp; ✓ No credit card needed &nbsp;·&nbsp; ✓ Works in browser</p>
+
+    <!-- HERO VISUAL -->
+    <div class="hero-visual">
+      <div class="audio-card">
+        <div class="audio-card-header">
+          <span class="audio-filename">podcast_episode_12.mp3</span>
+          <span class="audio-badge before">BEFORE</span>
+        </div>
+        <div class="waveform-display" id="waveformBefore"></div>
+        <div class="audio-meta"><span>Duration: 4:32</span><span>Silences: 47 &nbsp;·&nbsp; Breaths: 23</span></div>
+      </div>
+      <div class="vs-arrow">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+      <div class="audio-card">
+        <div class="audio-card-header">
+          <span class="audio-filename">podcast_episode_12_cleaned.mp3</span>
+          <span class="audio-badge after">AFTER</span>
+        </div>
+        <div class="waveform-display" id="waveformAfter"></div>
+        <div class="audio-meta"><span>Duration: 3:41</span><span style="color:var(--green)">✓ Cleaned &amp; ready</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-inner">
+      <div class="stat"><strong>~20%</strong><span>Average time saved</span></div>
+      <div class="stat"><strong>9 features</strong><span>All-in-one cleanup</span></div>
+      <div class="stat"><strong>MP3 + WAV</strong><span>Export formats</span></div>
+      <div class="stat"><strong>100% private</strong><span>Secure processing</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES PREVIEW -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Features</div>
+      <h2>Everything your audio needs</h2>
+      <p>One tool to clean your entire recording. No manual editing required.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔇</div>
+        <h3>Silence Removal</h3>
+        <p>Automatically detect and remove awkward pauses and dead air from your recordings.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💨</div>
+        <h3>Breath Removal</h3>
+        <p>AI detects and removes breath sounds between sentences for a polished, professional feel.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎚️</div>
+        <h3>Noise Reduction</h3>
+        <p>Eliminate background hiss, hum, and ambient noise from any environment.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Volume Normalization</h3>
+        <p>Consistent, balanced volume throughout your entire recording automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">▶️</div>
+        <h3>Before vs After Preview</h3>
+        <p>Hear the difference before downloading. Compare original and cleaned audio side by side.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Fast Cloud Processing</h3>
+        <p>Your audio is processed on fast cloud servers. Results in seconds, not minutes.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:2rem">
+      <a href="features.html" class="btn-outline">See all features →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS IT FOR -->
+<section class="section bg-subtle">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Who uses SilenceCut Pro</div>
+      <h2>Built for every kind of creator</h2>
+    </div>
+    <div class="for-grid">
+      <div class="for-card"><div class="for-icon">🎙️</div><h3>Podcasters</h3><p>Tighter episodes, less editing time. Sound professional every episode.</p></div>
+      <div class="for-card"><div class="for-icon">📹</div><h3>YouTubers</h3><p>Clean voiceovers with no dead air. Faster post-production workflow.</p></div>
+      <div class="for-card"><div class="for-icon">📖</div><h3>Audiobook Creators</h3><p>Studio-quality narration without a studio. Remove every breath and pause.</p></div>
+      <div class="for-card"><div class="for-icon">🎤</div><h3>Voiceover Artists</h3><p>Deliver cleaner files to clients in less time. Win more projects.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING PREVIEW -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Pricing</div>
+      <h2>Simple, honest pricing</h2>
+      <p>Start free. Upgrade when you need more.</p>
+    </div>
+    <div class="pricing-preview-grid">
+      <div class="price-mini">
+        <div class="price-mini-name">Free</div>
+        <div class="price-mini-amount">₹0<small>/mo</small></div>
+        <ul><li>✓ 3 files/month</li><li>✓ 10 min max</li><li>✓ Basic cleanup</li></ul>
+        <a href="dashboard.html" class="btn-outline" style="width:100%;text-align:center;display:block">Start free</a>
+      </div>
+      <div class="price-mini">
+        <div class="price-mini-name">Starter</div>
+        <div class="price-mini-amount">₹99<small>/mo</small></div>
+        <ul><li>✓ 50 files/month</li><li>✓ 30 min max</li><li>✓ All features</li></ul>
+        <a href="pricing.html" class="btn-outline" style="width:100%;text-align:center;display:block">Get started</a>
+      </div>
+      <div class="price-mini featured">
+        <div class="popular-badge">Most popular</div>
+        <div class="price-mini-name">Pro</div>
+        <div class="price-mini-amount">₹299<small>/mo</small></div>
+        <ul><li>✓ Unlimited files</li><li>✓ 2 hours max</li><li>✓ Priority processing</li></ul>
+        <a href="pricing.html" class="btn-primary" style="width:100%;text-align:center;display:block">Get Pro</a>
+      </div>
+      <div class="price-mini">
+        <div class="price-mini-name">Agency</div>
+        <div class="price-mini-amount">₹999<small>/mo</small></div>
+        <ul><li>✓ High limits</li><li>✓ Priority support</li><li>✓ API access (soon)</li></ul>
+        <a href="pricing.html" class="btn-outline" style="width:100%;text-align:center;display:block">Contact us</a>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <a href="pricing.html" class="link-arrow">Compare all plans →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <div class="container">
+    <h2>Ready for cleaner audio?</h2>
+    <p>Join thousands of creators who save hours every week with SilenceCut Pro.</p>
+    <a href="dashboard.html" class="btn-primary btn-lg">Try 3 Free Audio Cleanups</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">● SilenceCut<span style="color:var(--accent)">Pro</span></div>
+        <p>AI audio cleanup tool for creators. Remove pauses, breaths and dead air in seconds.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="refund.html">Refund Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 SilenceCut Pro. All rights reserved. Made in India 🇮🇳</p>
+      <p>Payments secured by Razorpay</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>drawWaveforms();</script>
+</body>
+</html>

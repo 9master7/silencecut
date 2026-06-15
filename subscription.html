@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscription — SilenceCut Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light">
+
+<nav class="navbar"><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><span class="logo-dot"></span>SilenceCut<span class="logo-pro">Pro</span></a>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+    <button class="btn-ghost-sm" onclick="logout()">Log out</button>
+  </div>
+</div></nav>
+
+<div class="dashboard-layout">
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-link"><span class="icon">🎙️</span> Clean Audio</a>
+    <a href="subscription.html" class="sidebar-link active"><span class="icon">💳</span> Subscription</a>
+    <div class="sidebar-divider"></div>
+    <a href="pricing.html" class="sidebar-link"><span class="icon">⬆️</span> Upgrade</a>
+    <a href="contact.html" class="sidebar-link"><span class="icon">💬</span> Support</a>
+    <div class="sidebar-divider"></div>
+    <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Log out</a>
+  </div>
+
+  <div class="dashboard-main">
+    <div class="sub-wrap">
+      <div class="dash-greeting">
+        <h2>Subscription</h2>
+        <p>Manage your plan, billing, and usage.</p>
+      </div>
+
+      <!-- CURRENT PLAN -->
+      <div class="sub-current">
+        <div class="sub-plan-info">
+          <h3 id="currentPlanName">Free Plan</h3>
+          <p id="currentPlanDesc">3 files/month · 10 min max · Basic features</p>
+        </div>
+        <div class="sub-actions">
+          <a href="pricing.html" class="btn-primary">Upgrade Plan</a>
+          <button class="btn-danger" id="cancelBtn" onclick="cancelSub()" style="display:none">Cancel Subscription</button>
+        </div>
+      </div>
+
+      <!-- BILLING INFO -->
+      <div class="settings-panel" id="billingPanel" style="display:none">
+        <h3>Billing Details</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div>
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:4px">Next billing date</div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)" id="nextBilling">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:4px">Amount</div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)" id="billAmount">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:4px">Payment method</div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)">•••• via Razorpay</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--ink3);margin-bottom:4px">Status</div>
+            <div style="font-size:15px;font-weight:600;color:var(--green)">✓ Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USAGE THIS MONTH -->
+      <div class="settings-panel">
+        <h3>Usage This Month</h3>
+        <div class="usage-cards" style="margin-bottom:0">
+          <div class="usage-card">
+            <div class="uc-label">Files Processed</div>
+            <div class="uc-val"><span id="subUsed">0</span> / <span id="subMax">3</span></div>
+            <div class="uc-bar-bg"><div class="uc-bar-fill" id="subBar" style="width:0%"></div></div>
+          </div>
+          <div class="usage-card">
+            <div class="uc-label">Resets On</div>
+            <div class="uc-val" id="subReset">—</div>
+            <div class="uc-note">First of next month</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAN COMPARISON -->
+      <div class="settings-panel">
+        <h3>Compare Plans</h3>
+        <p style="font-size:13px;color:var(--ink3);margin-bottom:1rem">Upgrade anytime. Cancel anytime.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem">
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+            <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Free</div>
+            <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:8px">₹0</div>
+            <div style="font-size:12px;color:var(--ink3)">3 files · 10 min</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+            <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Starter</div>
+            <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:8px">₹99</div>
+            <div style="font-size:12px;color:var(--ink3)">50 files · 30 min</div>
+          </div>
+          <div style="background:var(--accent-light);border:2px solid var(--accent);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+            <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:6px">Pro ⭐</div>
+            <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:var(--accent);margin-bottom:8px">₹299</div>
+            <div style="font-size:12px;color:var(--ink3)">Unlimited · 2 hrs</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:1rem;text-align:center">
+            <div style="font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Agency</div>
+            <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:var(--ink);margin-bottom:8px">₹999</div>
+            <div style="font-size:12px;color:var(--ink3)">High limits · API</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:1.25rem">
+          <a href="pricing.html" class="btn-primary">View full comparison →</a>
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:var(--ink3);text-align:center;margin-top:1rem">
+        Need help? <a href="contact.html">Contact support</a> &nbsp;·&nbsp; <a href="refund.html">Refund policy</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script>
+function initSubPage() {
+  const user = getUser() || { plan: 'free' };
+  const plan = user.plan || 'free';
+  const planNames = { free: 'Free Plan', starter: 'Starter Plan', pro: 'Pro Plan', agency: 'Agency Plan' };
+  const planDescs = {
+    free: '3 files/month · 10 min max · Basic features',
+    starter: '50 files/month · 30 min max · All features',
+    pro: 'Unlimited files · 2 hours max · Priority processing',
+    agency: 'High limits · 2 hours max · Priority support',
+  };
+  const planAmounts = { free: '₹0', starter: '₹99/month', pro: '₹299/month', agency: '₹999/month' };
+
+  document.getElementById('currentPlanName').textContent = planNames[plan];
+  document.getElementById('currentPlanDesc').textContent = planDescs[plan];
+
+  if (plan !== 'free') {
+    document.getElementById('billingPanel').style.display = 'block';
+    document.getElementById('cancelBtn').style.display = 'inline-flex';
+    document.getElementById('billAmount').textContent = planAmounts[plan];
+    const next = new Date(); next.setMonth(next.getMonth() + 1, 1);
+    document.getElementById('nextBilling').textContent = next.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  const used = parseInt(localStorage.getItem('sc_used_' + currentMonth()) || '0');
+  const max = plan === 'free' ? 3 : plan === 'starter' ? 50 : 9999;
+  document.getElementById('subUsed').textContent = used;
+  document.getElementById('subMax').textContent = max >= 9999 ? '∞' : max;
+  const pct = max >= 9999 ? 10 : Math.min(100, (used / max) * 100);
+  document.getElementById('subBar').style.width = pct + '%';
+  const reset = new Date(); reset.setMonth(reset.getMonth() + 1, 1);
+  document.getElementById('subReset').textContent = reset.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+function currentMonth() {
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth() + 1);
+}
+
+function cancelSub() {
+  if (confirm('Are you sure you want to cancel your subscription? You will retain access until the end of the billing period.')) {
+    const user = getUser();
+    user.plan = 'free';
+    setUser(user);
+    showToast('Subscription cancelled. Access continues until end of billing period.', 'success');
+    setTimeout(() => initSubPage(), 500);
+  }
+}
+
+initSubPage();
+</script>
+</body>
+</html>
